@@ -10,6 +10,7 @@ import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.CacheableTask;
+import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.LocalState;
@@ -71,6 +72,9 @@ public abstract class LancetTask extends DefaultTask {
     @PathSensitive(PathSensitivity.RELATIVE)
     public abstract ListProperty<Directory> getInputDirectories();
 
+    @Classpath
+    public abstract ListProperty<RegularFile> getBootClasspath();
+
     @OutputFile
     public abstract RegularFileProperty getOutputJar();
 
@@ -95,12 +99,16 @@ public abstract class LancetTask extends DefaultTask {
                 .map(RegularFile::getAsFile)
                 .filter(File::exists)
                 .collect(Collectors.toList());
+        List<File> bootClasspath = getBootClasspath().get().stream()
+                .map(RegularFile::getAsFile)
+                .filter(File::exists)
+                .collect(Collectors.toList());
 
         Log.i("Lancet full analysis started: " + directories.size() + " directories, "
-                + jars.size() + " jars");
+                + jars.size() + " jars, " + bootClasspath.size() + " boot classpath entries");
 
-        AnalysisResult analysis = analyze(directories, jars);
-        Weaver weaver = createWeaver(analysis, directories, jars);
+        AnalysisResult analysis = analyze(directories, jars, bootClasspath);
+        Weaver weaver = createWeaver(analysis, directories, jars, bootClasspath);
         writeOutput(weaver, directories, jars, getOutputJar().get().getAsFile());
 
         Log.i("Lancet bytecode weaving completed");
@@ -122,7 +130,8 @@ public abstract class LancetTask extends DefaultTask {
         }
     }
 
-    private AnalysisResult analyze(List<File> directories, List<File> jars) throws IOException {
+    private AnalysisResult analyze(List<File> directories, List<File> jars,
+                                   List<File> bootClasspath) throws IOException {
         PreClassProcessor processor = new AsmClassProcessorImpl();
         MetaGraphGeneratorImpl graphGenerator = new MetaGraphGeneratorImpl(new CheckFlow());
         List<String> hookClasses = new ArrayList<>();
@@ -144,14 +153,20 @@ public abstract class LancetTask extends DefaultTask {
         for (File jar : jars) {
             visitJar(jar, analyzer);
         }
+        for (File bootClasspathEntry : bootClasspath) {
+            visitJar(bootClasspathEntry, analyzer);
+        }
 
         return new AnalysisResult(graphGenerator.generate(), hookClasses);
     }
 
-    private Weaver createWeaver(AnalysisResult analysis, List<File> directories, List<File> jars) {
-        List<File> classPath = new ArrayList<>(directories.size() + jars.size());
+    private Weaver createWeaver(AnalysisResult analysis, List<File> directories, List<File> jars,
+                                List<File> bootClasspath) {
+        List<File> classPath = new ArrayList<>(
+                directories.size() + jars.size() + bootClasspath.size());
         classPath.addAll(directories);
         classPath.addAll(jars);
+        classPath.addAll(bootClasspath);
         URL[] urls = classPath.stream().map(File::toURI).map(uri -> {
             try {
                 return uri.toURL();

@@ -1,6 +1,7 @@
 package me.ele.lancet.plugin;
 
 import com.android.build.api.artifact.ScopedArtifact;
+import com.android.build.api.dsl.SdkComponents;
 import com.android.build.api.variant.AndroidComponentsExtension;
 import com.android.build.api.variant.ScopedArtifacts;
 import com.android.build.api.variant.Variant;
@@ -27,10 +28,12 @@ public class LancetPlugin implements Plugin<Project> {
                 project.getExtensions().getByType(AndroidComponentsExtension.class);
 
         androidComponents.onVariants(androidComponents.selector().all(),
-                (Action<Variant>) variant -> registerVariant(project, lancetExtension, variant));
+                (Action<Variant>) variant -> registerVariant(
+                        project, lancetExtension, androidComponents.getSdkComponents(), variant));
     }
 
-    private void registerVariant(Project project, LancetExtension extension, Variant variant) {
+    private void registerVariant(Project project, LancetExtension extension,
+                                 SdkComponents sdkComponents, Variant variant) {
         String variantName = variant.getName();
         String taskName = "transform" + capitalize(variantName) + "ClassesWithLancet";
         TaskProvider<LancetTask> taskProvider = project.getTasks().register(taskName, LancetTask.class, task -> {
@@ -40,6 +43,7 @@ public class LancetPlugin implements Plugin<Project> {
             task.getLogFileName().set(project.provider(() ->
                     extension.getFileName() == null ? "" : extension.getFileName()));
             task.getWorkDirectory().set(project.getLayout().getBuildDirectory().dir("lancet/" + variantName));
+            task.getBootClasspath().set(sdkComponents.getBootClasspath());
         });
 
         variant.getArtifacts()
