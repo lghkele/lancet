@@ -5,7 +5,6 @@ import com.android.build.api.transform.SecondaryFile;
 import com.android.build.api.transform.Transform;
 import com.android.build.api.transform.TransformException;
 import com.android.build.api.transform.TransformInvocation;
-import com.android.build.gradle.internal.pipeline.TransformManager;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
@@ -19,6 +18,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -59,13 +59,17 @@ class LancetTransform extends Transform {
 
     @Override
     public Set<QualifiedContent.ContentType> getInputTypes() {
-        return TransformManager.CONTENT_CLASS;
+        return Collections.singleton(QualifiedContent.DefaultContentType.CLASSES);
     }
 
 
     @Override
     public Set<QualifiedContent.Scope> getScopes() {
-        return TransformManager.SCOPE_FULL_PROJECT;
+        return EnumSet.of(
+                QualifiedContent.Scope.PROJECT,
+                QualifiedContent.Scope.SUB_PROJECTS,
+                QualifiedContent.Scope.EXTERNAL_LIBRARIES
+        );
     }
 
     @Override
@@ -162,4 +166,3 @@ class LancetTransform extends Transform {
         }
     }
 }
-

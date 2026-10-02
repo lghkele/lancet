@@ -1,18 +1,26 @@
-apply plugin: 'java'
-
-dependencies {
-    testCompile "junit:junit:4.12"
-    testCompile 'com.squareup.okio:okio:1.11.0'
-    testCompile 'org.assertj:assertj-core:3.6.2'
-
-    compileClasspath "com.android.tools.build:gradle:$android_tools_version"
-    compile project(':lancet-base')
-    compile gradleApi()
-    compileClasspath "com.google.guava:guava:$guava_version"
-    compile "org.ow2.asm:asm-all:$asm_version"
+plugins {
+    id 'java-library'
 }
 
-sourceCompatibility = "1.8"
-targetCompatibility = "1.8"
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
+dependencies {
+    api project(':lancet-base')
+    api "org.ow2.asm:asm:$asm_version"
+    api "org.ow2.asm:asm-tree:$asm_version"
+    api "org.ow2.asm:asm-commons:$asm_version"
+    api "org.ow2.asm:asm-util:$asm_version"
+    api "com.google.guava:guava:$guava_version"
 
+    compileOnly gradleApi()
+    compileOnly "com.android.tools.build:gradle:$android_tools_version"
+
+    testImplementation gradleApi()
+    testImplementation "com.android.tools.build:gradle:$android_tools_version"
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'com.squareup.okio:okio:1.17.6'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
+}

@@ -1,25 +1,78 @@
-apply plugin: 'java'
+plugins {
+    id 'com.android.application' version '8.6.1'
+    id 'org.jetbrains.kotlin.android' version '1.9.24'
+    id 'me.ele.lancet'
+}
+
+def lancetSourceBuild = gradle.includedBuild('lancet')
+def localLancetBase = files('../lancet-base/build/libs/lancet-base-1.0.6.jar')
+localLancetBase.builtBy(lancetSourceBuild.task(':lancet-base:jar'))
+
+def localLancetTestRuntime = files(
+        '../lancet-weaver/build/libs/lancet-weaver-1.0.6.jar',
+        '../lancet-plugin/build/libs/lancet-plugin-1.0.6.jar'
+)
+localLancetTestRuntime.builtBy(
+        lancetSourceBuild.task(':lancet-weaver:jar'),
+        lancetSourceBuild.task(':lancet-plugin:jar')
+)
+
+android {
+    namespace 'com.sample.playground'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.sample.playground'
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
 
 dependencies {
-    compile project(":lancet-base")
-    testCompile project(":lancet-plugin")
-    testCompile "com.android.tools.build:gradle:$android_tools_version"
-    testCompile "junit:junit:4.12"
-    testCompile 'com.squareup.okio:okio:1.11.0'
-    testCompile 'org.assertj:assertj-core:3.6.2'
-    testCompile 'org.mockito:mockito-core:2.8.47'
+    implementation localLancetBase
+
+    testImplementation localLancetTestRuntime
+    testImplementation gradleTestKit()
+    testImplementation 'com.android.tools.build:gradle:8.6.1'
+    testImplementation 'com.google.code.gson:gson:2.10.1'
+    testImplementation 'com.google.guava:guava:33.0.0-jre'
+    testImplementation 'org.ow2.asm:asm:9.6'
+    testImplementation 'org.ow2.asm:asm-tree:9.6'
+    testImplementation 'org.ow2.asm:asm-commons:9.6'
+    testImplementation 'org.ow2.asm:asm-util:9.6'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'com.squareup.okio:okio:1.17.6'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
+    testImplementation 'org.mockito:mockito-core:5.12.0'
 }
 
-
-task executeTestSample(type:JavaExec) {
-    main = "com.sample.playground.Main"
-    classpath = files('build/classes/java/main')
+tasks.register('executeTestSampleProduct', JavaExec) {
+    mainClass = 'com.sample.playground.Main'
+    classpath = files(layout.buildDirectory.dir('product/java/main')) +
+            configurations.debugRuntimeClasspath
 }
 
-task executeTestSampleProduct(type:JavaExec) {
-    main = "com.sample.playground.Main"
-    classpath = files('build/product/java/main')
+tasks.register('executeTestSample', JavaExec) {
+    dependsOn 'compileDebugJavaWithJavac', 'compileDebugKotlin'
+    mainClass = 'com.sample.playground.Main'
+    classpath = files(layout.buildDirectory.dir(
+            'intermediates/javac/debug/compileDebugJavaWithJavac/classes')) +
+            files(layout.buildDirectory.dir('tmp/kotlin-classes/debug')) +
+            configurations.debugRuntimeClasspath
 }
-
-sourceCompatibility = "1.8"
-targetCompatibility = "1.8"

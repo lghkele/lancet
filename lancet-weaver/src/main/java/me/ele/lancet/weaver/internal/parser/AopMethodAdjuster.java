@@ -13,9 +13,19 @@ import org.objectweb.asm.tree.*;
  */
 public class AopMethodAdjuster {
 
-    public static final int OP_CALL = Integer.MAX_VALUE;
-    public static final int OP_THIS_GET_FIELD = OP_CALL - 1;
-    public static final int OP_THIS_PUT_FIELD = OP_THIS_GET_FIELD - 1;
+    /**
+     * Marker owners used while a hook method is held as an ASM tree.
+     *
+     * Older Lancet versions used values larger than 255 as pseudo JVM opcodes.
+     * ASM 9 normalizes method invocation opcodes while replaying a MethodNode,
+     * which can make those pseudo opcodes leak into the generated class file as
+     * invalid bytecode. Keeping a legal INVOKESTATIC instruction and marking it
+     * by owner is safe across ASM versions; MethodChain consumes these calls
+     * before the class is written.
+     */
+    public static final String CALL_MARKER_OWNER = "me/ele/lancet/weaver/internal/marker/OriginCall";
+    public static final String THIS_GET_FIELD_MARKER_OWNER = "me/ele/lancet/weaver/internal/marker/ThisGetField";
+    public static final String THIS_PUT_FIELD_MARKER_OWNER = "me/ele/lancet/weaver/internal/marker/ThisPutField";
 
     public static final String JAVA_LANG_OBJECT = "java/lang/Object";
 
@@ -111,7 +121,8 @@ public class AopMethodAdjuster {
         @Override
         public AbstractInsnNode replace(MethodInsnNode node) {
             checkReturnType(node);
-            node.setOpcode(OP_CALL);
+            node.setOpcode(Opcodes.INVOKESTATIC);
+            node.owner = CALL_MARKER_OWNER;
             if (type != VOID && !returnType.equals(JAVA_LANG_OBJECT)) {
                 checkCast(node.getNext());
                 methodNode.instructions.remove(node.getNext());
@@ -175,13 +186,15 @@ public class AopMethodAdjuster {
 
                 case "getField":
                     checkAllow(node.name);
-                    node.setOpcode(OP_THIS_GET_FIELD);
+                    node.setOpcode(Opcodes.INVOKESTATIC);
+                    node.owner = THIS_GET_FIELD_MARKER_OWNER;
                     node.name = getFieldName(node.getPrevious());
                     break;
 
                 case "putField":
                     checkAllow(node.name);
-                    node.setOpcode(OP_THIS_PUT_FIELD);
+                    node.setOpcode(Opcodes.INVOKESTATIC);
+                    node.owner = THIS_PUT_FIELD_MARKER_OWNER;
                     node.name = getFieldName(node.getPrevious());
                     break;
             }

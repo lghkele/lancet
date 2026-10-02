@@ -1,4 +1,10 @@
-include ':lancet-base', ':lancet-weaver', ':lancet-plugin', ':sample-test'//, ':lancet-processor', ':lancet-parser'
-//include ':testsample'
-rootProject.name = "Lancet"
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
 
+rootProject.name = 'Lancet'
+include ':lancet-base', ':lancet-weaver', ':lancet-plugin'

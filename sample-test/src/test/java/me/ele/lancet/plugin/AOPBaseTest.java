@@ -115,7 +115,13 @@ public abstract class AOPBaseTest {
             e.printStackTrace();
         }
 
-        Process process = Runtime.getRuntime().exec("./../gradlew executeTestSampleProduct");
+        String javaExecutable = new File(System.getProperty("java.home"), "bin/java").getAbsolutePath();
+        Process process = new ProcessBuilder(
+                javaExecutable,
+                "-cp",
+                new File(ClassFileUtil.ProductDir).getAbsolutePath(),
+                "com.sample.playground.Main"
+        ).redirectErrorStream(true).start();
         BufferedSource source = Okio.buffer(Okio.source(process.getInputStream()));
         String output = source.readUtf8();
         System.out.println("\n"+output);

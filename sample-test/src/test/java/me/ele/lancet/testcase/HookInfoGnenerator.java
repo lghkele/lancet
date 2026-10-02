@@ -27,7 +27,7 @@ public class HookInfoGnenerator {
     public static List<MethodNode> methodNodeList(String className) throws IOException {
         ClassReader classReader = new ClassReader(Okio.buffer(Okio.source(ClassFileUtil.getClassFile(className))).readByteArray());
         List<MethodNode> hookNode = new ArrayList<>();
-        classReader.accept(new ClassVisitor(Opcodes.ASM5) {
+        classReader.accept(new ClassVisitor(Opcodes.ASM9) {
             @Override
             public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
                 if (name.equals("<init>")){
@@ -35,12 +35,13 @@ public class HookInfoGnenerator {
                 }
                 MethodNode node = new MethodNode(access, name, desc, signature, exceptions);
                 hookNode.add(node);
-                return new MethodVisitor(Opcodes.ASM5,node) {
+                return new MethodVisitor(Opcodes.ASM9,node) {
 
                     @Override
                     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
                         if (owner.equals("com/sample/hook/Origin")){
-                            opcode = AopMethodAdjuster.OP_CALL;
+                            opcode = Opcodes.INVOKESTATIC;
+                            owner = AopMethodAdjuster.CALL_MARKER_OWNER;
                         }
                         super.visitMethodInsn(opcode, owner, name, desc, itf);
                     }

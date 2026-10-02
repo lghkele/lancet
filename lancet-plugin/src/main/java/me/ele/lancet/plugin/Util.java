@@ -1,6 +1,5 @@
 package me.ele.lancet.plugin;
 
-import com.android.utils.FileUtils;
 import me.ele.lancet.weaver.internal.asm.ClassTransform;
 
 import java.io.File;

@@ -4,8 +4,6 @@ import com.android.build.api.transform.JarInput;
 import com.android.build.api.transform.QualifiedContent;
 import com.google.common.io.ByteStreams;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -24,16 +22,17 @@ public class JarContentProvider extends TargetedQualifiedContentProvider {
 
     private void forActualInput(JarInput jarInput, ClassFetcher processor) throws IOException {
         if (processor.onStart(jarInput)) {
-            ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(jarInput.getFile())));
-            ZipEntry entry;
-            while ((entry = zis.getNextEntry()) != null) {
-                if (entry.isDirectory()) {
-                    continue;
+            try (ZipInputStream zis = new ZipInputStream(
+                    new BufferedInputStream(new FileInputStream(jarInput.getFile())))) {
+                ZipEntry entry;
+                while ((entry = zis.getNextEntry()) != null) {
+                    if (entry.isDirectory()) {
+                        continue;
+                    }
+                    byte[] data = ByteStreams.toByteArray(zis);
+                    processor.onClassFetch(jarInput, jarInput.getStatus(), entry.getName(), data);
                 }
-                byte[] data = ByteStreams.toByteArray(zis);
-                processor.onClassFetch(jarInput, jarInput.getStatus(), entry.getName(), data);
             }
-            IOUtils.closeQuietly(zis);
         }
         processor.onComplete(jarInput);
     }

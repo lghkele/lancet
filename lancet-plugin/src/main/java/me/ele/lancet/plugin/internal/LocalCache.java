@@ -6,12 +6,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 
-import org.apache.commons.io.Charsets;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -37,7 +36,7 @@ public class LocalCache {
     private Metas loadCache() {
         if (localCache.exists() && localCache.isFile()) {
             try {
-                Reader reader = Files.newReader(localCache, Charsets.UTF_8);
+                Reader reader = Files.newReader(localCache, StandardCharsets.UTF_8);
                 return gson.fromJson(reader, Metas.class).withoutNull();
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -82,7 +81,7 @@ public class LocalCache {
     public void saveToLocal() {
         try {
             Files.createParentDirs(localCache);
-            Writer writer = Files.newWriter(localCache, Charsets.UTF_8);
+            Writer writer = Files.newWriter(localCache, StandardCharsets.UTF_8);
             gson.toJson(metas.withoutNull(), Metas.class, writer);
             writer.close();
         } catch (IOException e) {

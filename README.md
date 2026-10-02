@@ -4,7 +4,22 @@
 
 Lancet is a lightweight AOP framework for Android.
 
-It's fast and just take up a little time during compiling. Also, it supports incremental compiling.
+> The current source baseline is Kotlin 1.9.24, Android Gradle Plugin 8.6.1,
+> Gradle 8.7, compileSdk/targetSdk 34, minSdk 24, and JDK 17. On AGP 8.x,
+> Lancet uses Scoped Artifacts for full bytecode weaving while keeping the existing
+> annotations and weaver implementation unchanged.
+
+`sample-test` is a standalone Android composite build that loads the Lancet plugin
+directly from this checkout:
+
+```shell
+cd sample-test
+../gradlew assembleDebug
+../gradlew testDebugUnitTest
+```
+
+It's fast and just takes a little time during compilation. The legacy Transform integration
+supports incremental compilation; the AGP 8.x adapter currently performs a full weave.
 
 But it provides great api to help you coding in Android.
 
@@ -377,7 +392,6 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
 
 
 

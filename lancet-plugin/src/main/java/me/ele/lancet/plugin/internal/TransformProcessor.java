@@ -3,7 +3,6 @@ package me.ele.lancet.plugin.internal;
 import com.android.build.api.transform.JarInput;
 import com.android.build.api.transform.QualifiedContent;
 import com.android.build.api.transform.Status;
-import com.android.utils.FileUtils;
 import com.google.common.io.Files;
 
 import java.io.BufferedOutputStream;
@@ -44,10 +43,10 @@ public class TransformProcessor implements ClassFetcher {
             File targetFile = context.getRelativeFile(content);
             switch (jarInput.getStatus()) {
                 case REMOVED:
-                    FileUtils.deleteIfExists(targetFile);
+                    java.nio.file.Files.deleteIfExists(targetFile.toPath());
                     return false;
                 case CHANGED:
-                    FileUtils.deleteIfExists(targetFile);
+                    java.nio.file.Files.deleteIfExists(targetFile.toPath());
                 default:
                     Files.createParentDirs(targetFile);
                     map.put(content, new JarRunner(content, targetFile));
@@ -67,12 +66,12 @@ public class TransformProcessor implements ClassFetcher {
             File hookWithTarget = Util.toSystemDependentHookFile(relativeRoot, relativePath);
             switch (status) {
                 case REMOVED:
-                    FileUtils.deleteIfExists(target);
-                    FileUtils.deleteIfExists(hookWithTarget);
+                    java.nio.file.Files.deleteIfExists(target.toPath());
+                    java.nio.file.Files.deleteIfExists(hookWithTarget.toPath());
                     break;
                 case CHANGED:
-                    FileUtils.deleteIfExists(target);
-                    FileUtils.deleteIfExists(hookWithTarget);
+                    java.nio.file.Files.deleteIfExists(target.toPath());
+                    java.nio.file.Files.deleteIfExists(hookWithTarget.toPath());
                 default:
                     dirRunner.run(relativeRoot, relativePath, bytes);
             }

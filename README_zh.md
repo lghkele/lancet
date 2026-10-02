@@ -2,7 +2,19 @@
 
 Lancet 是一个轻量级Android AOP框架。
 
-+ 编译速度快, 并且支持增量编译.
+> 当前源码构建基线：Kotlin 1.9.24、Android Gradle Plugin 8.6.1、Gradle 8.7、
+> compileSdk/targetSdk 34、minSdk 24、JDK 17。AGP 8.x 使用 Scoped Artifacts
+> 完成全量字节码织入，原有注解和 Weaver 逻辑保持不变。
+
+`sample-test` 是独立的 Android 复合构建测试项目，会直接加载当前源码中的 Lancet 插件：
+
+```shell
+cd sample-test
+../gradlew assembleDebug
+../gradlew testDebugUnitTest
+```
+
++ 编译速度快；旧版 Transform 接入支持增量编译，AGP 8.x 适配层当前使用全量织入.
 + 简洁的 API, 几行 Java 代码完成注入需求.
 + 没有任何多余代码插入 apk.
 + 支持用于 SDK, 可以在SDK编写注入代码来修改依赖SDK的App.
@@ -286,7 +298,6 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
 
 
 

@@ -87,15 +87,15 @@ public class MethodChain {
         head.createIfNeed(base, bitset, exs);
 
         MethodVisitor mv = cv.visitMethod(access, name, desc, null, exs);
-        node.accept(new MethodVisitor(Opcodes.ASM5, new AutoUnboxMethodVisitor(mv)) {
+        node.accept(new MethodVisitor(Opcodes.ASM9, new AutoUnboxMethodVisitor(mv)) {
 
             @Override
             public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-                if (opcode == AopMethodAdjuster.OP_CALL) {
+                if (owner.equals(AopMethodAdjuster.CALL_MARKER_OWNER)) {
                     head.loadArgsAndInvoke(mv);
-                } else if (opcode == AopMethodAdjuster.OP_THIS_GET_FIELD) {
+                } else if (owner.equals(AopMethodAdjuster.THIS_GET_FIELD_MARKER_OWNER)) {
                     dealField(Opcodes.GETFIELD, name, mv);
-                } else if (opcode == AopMethodAdjuster.OP_THIS_PUT_FIELD) {
+                } else if (owner.equals(AopMethodAdjuster.THIS_PUT_FIELD_MARKER_OWNER)) {
                     dealField(Opcodes.PUTFIELD, name, mv);
                 } else {
                     super.visitMethodInsn(opcode, owner, name, desc, itf);
