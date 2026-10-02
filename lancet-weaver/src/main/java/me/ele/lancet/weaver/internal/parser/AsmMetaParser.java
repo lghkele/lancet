@@ -171,8 +171,15 @@ public class AsmMetaParser implements MetaParser {
         @SuppressWarnings("unchecked")
         private void checkNode(ClassNode cn) {
             if (cn.fields.size() > 0) {
-                String s = ((List<FieldNode>)cn.fields).stream().map(fieldNode -> fieldNode.name).collect(Collectors.joining(","));
-                Log.w("can't declare fields '"+s+"' in hook class "+cn.name);
+                int publicStatic = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC;
+                String unsupportedFields = ((List<FieldNode>) cn.fields).stream()
+                        .filter(field -> (field.access & publicStatic) != publicStatic)
+                        .map(field -> field.name)
+                        .collect(Collectors.joining(","));
+                if (!unsupportedFields.isEmpty()) {
+                    Log.w("hook fields must be public static; unsupported fields '"
+                            + unsupportedFields + "' in " + cn.name);
+                }
             }
             int ac = Opcodes.ACC_STATIC | Opcodes.ACC_PUBLIC;
             cn.innerClasses.forEach(c -> {

@@ -146,7 +146,7 @@ public class HookInfoLocator {
                 throw new IllegalAnnotationException("no @targetClass or @ImplementedInterface on " + sourceClass + "." + sourceNode.name);
             }
             if (classes.size() <= 0) {
-                Log.w("can't find satisfied class with " + sourceClass + "." + sourceNode.name);
+                Log.d("no matching target class for " + sourceClass + "." + sourceNode.name);
             }
         } else {
             if (!targetDesc.equals("(Ljava/lang/Throwable;)Ljava/lang/Throwable;") ||
