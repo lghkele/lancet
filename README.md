@@ -2,6 +2,8 @@
 
 [Chinese README](README_zh.md)
 
+Publishing and consumer-project setup: [PUBLISHING.md](PUBLISHING.md).
+
 Lancet is a lightweight AOP framework for Android.
 
 > The current source baseline is Kotlin 1.9.24, Android Gradle Plugin 8.6.1,
@@ -30,23 +32,16 @@ In addition, not only App developers but also SDK developers can use Lancet.
 ## Usage
 ### Installation
 
-Firstly, add following code in root **build.gradle** of your project.
+For a released version, first configure the GitHub Packages repository as
+described in [PUBLISHING.md](PUBLISHING.md), then add the plugin and base API:
 
 ```groovy
-dependencies {
-    classpath 'com.android.tools.build:gradle:3.3.2'
-    classpath 'me.ele:lancet-plugin:1.0.6'
+plugins {
+    id 'me.ele.lancet' version '1.0.7'
 }
-```
-Tips: Lancet 1.0.5 and above only supports gradle 3.3.2 and above.
-
-And then, add following code in your **application module's build.gradle**
-
-```groovy
-apply plugin: 'me.ele.lancet'
 
 dependencies {
-    provided 'me.ele:lancet-base:1.0.6'
+    compileOnly 'me.ele:lancet-base:1.0.7'
 }
 ```
 

@@ -1,0 +1,8 @@
+# JitPack builds the tagged source in a clean Linux environment.
+jdk:
+  - openjdk17
+
+# Install every published Lancet module into the local Maven repository so
+# JitPack can expose lancet-base, lancet-weaver, and lancet-plugin.
+install:
+  - ./gradlew clean uploadAll --no-daemon

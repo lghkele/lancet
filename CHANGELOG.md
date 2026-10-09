@@ -1,5 +1,9 @@
 #Change Log
 
+## Version 1.0.7
+
+* Add JitPack publishing configuration for the `adaoter_agp8` release line.
+
 ## Version 1.0.6
 *2020-06-17
 * Fix: update guava version.

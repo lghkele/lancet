@@ -5,12 +5,12 @@ plugins {
 }
 
 def lancetSourceBuild = gradle.includedBuild('lancet')
-def localLancetBase = files('../lancet-base/build/libs/lancet-base-1.0.6.jar')
+def localLancetBase = files('../lancet-base/build/libs/lancet-base-1.0.7.jar')
 localLancetBase.builtBy(lancetSourceBuild.task(':lancet-base:jar'))
 
 def localLancetTestRuntime = files(
-        '../lancet-weaver/build/libs/lancet-weaver-1.0.6.jar',
-        '../lancet-plugin/build/libs/lancet-plugin-1.0.6.jar'
+        '../lancet-weaver/build/libs/lancet-weaver-1.0.7.jar',
+        '../lancet-plugin/build/libs/lancet-plugin-1.0.7.jar'
 )
 localLancetTestRuntime.builtBy(
         lancetSourceBuild.task(':lancet-weaver:jar'),

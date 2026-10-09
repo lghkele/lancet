@@ -1,5 +1,7 @@
 # Lancet
 
+发布与其他项目接入方式请参阅 [PUBLISHING.md](PUBLISHING.md)。
+
 Lancet 是一个轻量级Android AOP框架。
 
 > 当前源码构建基线：Kotlin 1.9.24、Android Gradle Plugin 8.6.1、Gradle 8.7、
@@ -22,21 +24,15 @@ cd sample-test
 ## 开始使用
 ### 安装
 
-在根目录的 `build.gradle` 添加:
+发布版本时，请先按照 [PUBLISHING.md](PUBLISHING.md) 配置 GitHub Packages
+仓库，然后在使用方项目中添加插件和基础 API：
 ```groovy
-dependencies {
-    classpath 'com.android.tools.build:gradle:3.3.2'
-    classpath 'me.ele:lancet-plugin:1.0.6'
+plugins {
+    id 'me.ele.lancet' version '1.0.7'
 }
-```
-注意: Lancet 1.0.5 及以上版本只支持 gradle 3.3.2 及以上版本。
-
-在 app 目录的'build.gradle' 添加：
-```groovy
-apply plugin: 'me.ele.lancet'
 
 dependencies {
-    provided 'me.ele:lancet-base:1.0.6'
+    compileOnly 'me.ele:lancet-base:1.0.7'
 }
 ```
 
